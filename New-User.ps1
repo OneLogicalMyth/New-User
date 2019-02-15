@@ -3,11 +3,12 @@
 # Copyright: (c) 2015 Liam Glanfield. All rights reserved.  Licensed with GNU GENERAL PUBLIC LICENSE.
 # Version: 1.1 - Bug fixes for username generation and length
 # Version: 1.2 - More error handling to capture creation failures user accounts as per issue #1
+# Version: 1.3 - Added support for disabling Emails
 
 #region Configuration
  
     #The smtp relay address
-    $PSEmailServer = 'localhost'
+    $PSEmailServer = $null
 
     #results output
     $ResultsFile = 'C:\Users\Administrator\Desktop\UserResults.csv'
@@ -430,9 +431,9 @@ param(
                 #All seems great so far so lets email them the good news
                 $Body = New-EmailTemplate -Name $User.GivenName -Username $Username -Password $Password -ServiceDeskEmail $ServiceDeskEmail
 
-                if($AdminEmail){
+                if($AdminEmail -and $PSEmailServer){
                     Send-MailMessage -To $User.EmailAddress -Bcc $AdminEmail -Body $Body -BodyAsHtml -From $EmailFrom -Subject $EmailSubject -ErrorAction Stop
-                }else{
+                }elseif($PSEmailServer){
                     Send-MailMessage -To $User.EmailAddress -Body $Body -BodyAsHtml -From $EmailFrom -Subject $EmailSubject -ErrorAction Stop
                 }
             }
